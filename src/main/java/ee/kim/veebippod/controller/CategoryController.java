@@ -1,5 +1,6 @@
 package ee.kim.veebippod.controller;
 
+import ee.kim.veebippod.dto.CategoryDto;
 import ee.kim.veebippod.entity.Category;
 import ee.kim.veebippod.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,9 @@ public class CategoryController {
 
     //lisamine
     @PostMapping("categories")
-    public Category addCategory(@RequestBody Category category) {
+    public Category addCategory(@RequestBody CategoryDto categoryDto) {
+        Category category = new Category();
+        category.setName(categoryDto.name());
         return categoryRepository.save(category);
     }
 
@@ -33,9 +36,9 @@ public class CategoryController {
 
     //muutmine
     @PutMapping("categories/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
+    public Category updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto) {
         Category existingCategory = categoryRepository.findById(id).orElseThrow();
-        existingCategory.setName(category.getName());
+        existingCategory.setName(categoryDto.name());
         return categoryRepository.save(existingCategory);
     }
 }

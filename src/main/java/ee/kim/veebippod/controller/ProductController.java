@@ -6,7 +6,9 @@ import ee.kim.veebippod.entity.Product;
 import ee.kim.veebippod.repository.CategoryRepository;
 import ee.kim.veebippod.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class ProductController {
     @PostMapping("products")
     public Product addProduct(@RequestBody ProductDto productDto) {
         Product product = new Product();
-        updateProductFields(product, productDto);
+        mapProductDtoToProduct(productDto, product);
         return productRepository.save(product);
     }
 
@@ -41,31 +43,35 @@ public class ProductController {
     //muutmine
     @PutMapping("products/{id}")
     public Product updateProduct(@PathVariable Long id, @RequestBody ProductDto productDto) {
-        Product existingProduct = productRepository.findById(id).orElseThrow();
-        updateProductFields(existingProduct, productDto);
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+        mapProductDtoToProduct(productDto, existingProduct);
         return productRepository.save(existingProduct);
     }
 
     //yhe vaatamine
     @GetMapping("products/{id}")
     public Product getOneProduct(@PathVariable Long id) {
-        return productRepository.findById(id).orElseThrow();
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 
-    private void updateProductFields(Product product, ProductDto productDto) {
+    private void mapProductDtoToProduct(ProductDto productDto, Product product) {
         product.setName(productDto.name());
         product.setPrice(productDto.price());
         product.setActive(productDto.active());
         product.setStock(productDto.stock());
         product.setDescription(productDto.description());
         product.setImage(productDto.image());
-        product.setCategory(getCategory(productDto.categoryId()));
+
+        if (productDto.categoryId() == null) {
+            product.setCategory(null);
+            return;
+        }
+
+        Category category = categoryRepository.findById(productDto.categoryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+        product.setCategory(category);
     }
 
-    private Category getCategory(Long categoryId) {
-        if (categoryId == null) {
-            return null;
-        }
-        return categoryRepository.findById(categoryId).orElseThrow();
-    }
 }
