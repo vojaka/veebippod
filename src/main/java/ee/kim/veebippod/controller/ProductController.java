@@ -6,6 +6,8 @@ import ee.kim.veebippod.entity.Product;
 import ee.kim.veebippod.repository.CategoryRepository;
 import ee.kim.veebippod.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +23,7 @@ public class ProductController {
     private final CategoryRepository categoryRepository;
 
 
-    @GetMapping("products")
+    @GetMapping("allproducts")
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
@@ -55,6 +57,16 @@ public class ProductController {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
+
+    @GetMapping("products")
+    public Page<Product> getProducts(Pageable pageable, @RequestParam(required = false) Long categoryId) {
+        if (categoryId == null) {
+            return productRepository.findAll(pageable);
+        }
+        return productRepository.findAllByCategoryId(pageable,categoryId);
+    }
+
+
 
     private void mapProductDtoToProduct(ProductDto productDto, Product product) {
         product.setName(productDto.name());
