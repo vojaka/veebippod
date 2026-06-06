@@ -1,5 +1,7 @@
 package ee.kim.veebippod.dto;
 
+import java.io.Serializable;
+
 public record ProductDto(
         String name,
         Double price,
@@ -8,5 +10,5 @@ public record ProductDto(
         String description,
         String image,
         Long categoryId
-) {
+)implements Serializable {
 }

@@ -1,7 +1,9 @@
 package ee.kim.veebippod.controller;
 
+import ee.kim.veebippod.dto.OrderDto;
 import ee.kim.veebippod.entity.Order;
-import ee.kim.veebippod.repository.OrderRepository;
+import ee.kim.veebippod.entity.OrderRow;
+import ee.kim.veebippod.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,33 +13,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderRepository orderRepository;
-
+    private final OrderService orderService;
 
     @GetMapping("orders")
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        return orderService.getAllOrders();
     }
 
     //lisamise
     @PostMapping("orders")
-    public Order addOrder(@RequestBody Order order) {
-        order.setActive(true);
-        return orderRepository.save(order);
+    public Order addOrder(@RequestBody List<OrderRow> orderRows) {
+        return orderService.saveOrder(orderRows);
     }
 
     //mitte aktiivseks muutmine
     @PatchMapping("orders/{id}/inactive")
-    public Order makeOrderInactive(@PathVariable Long id) {
-        Order order = orderRepository.findById(id).orElseThrow();
-        order.setActive(false);
-        return orderRepository.save(order);
+    public OrderDto makeOrderInactive(@PathVariable Long id) {
+        return orderService.makeOrderInactive(id);
     }
 
     //yhevaatamine
     @GetMapping("orders/{id}")
-    public Order getOneOrder(@PathVariable Long id) {
-        return orderRepository.findById(id).orElseThrow();
+    public OrderDto getOneOrder(@PathVariable Long id) {
+        return orderService.getOneOrder(id);
     }
-
 }

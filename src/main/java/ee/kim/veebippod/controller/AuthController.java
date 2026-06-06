@@ -2,56 +2,55 @@ package ee.kim.veebippod.controller;
 
 import ee.kim.veebippod.dto.LoginDto;
 import ee.kim.veebippod.dto.SignupDto;
+import ee.kim.veebippod.dto.SmartIdDto;
 import ee.kim.veebippod.entity.Person;
 import ee.kim.veebippod.repository.PersonRepository;
+import ee.kim.veebippod.security.JetService;
+import ee.kim.veebippod.service.AuthService;
+import ee.kim.veebippod.service.SmartIdService;
+import ee.sk.smartid.rest.dao.DeviceLinkSessionResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Log4j2
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
 
+    private final AuthService authService;
+    private final JetService jetService;
     private final PersonRepository personRepository;
+    private final SmartIdService smartIdService;
 
     @GetMapping("persons")
-    public List<Person> getallpersons()
-    {
-        return personRepository.findAll();
+    public List<Person> getallpersons() {
+        return authService.getAllPersons();
     }
 
     @PostMapping("login")
     public String login(@RequestBody LoginDto person) {
-        if (person.email()== null || person.password() == null) {
+        if (person.email() == null || person.password() == null) {
             throw new RuntimeException();
         }
-        return "Edukalt sisse logitud!";
+        Person dbPerson = personRepository.findByEmail(person.email());
+        return jetService.generateToken(dbPerson);
     }
-
-
 
     //signup
     @PostMapping("signup")
     public Person signup(@RequestBody SignupDto signupDto) {
-        if (signupDto.email() == null || signupDto.password() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required");
-        }
-
-        if (personRepository.existsByEmail(signupDto.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use");
-        }
-
-        Person person = new Person();
-        person.setFirstName(signupDto.firstName());
-        person.setLastName(signupDto.lastName());
-        person.setEmail(signupDto.email());
-        person.setPassword(signupDto.password());
-        person.setPersonalCode(signupDto.personalCode());
-
-        return personRepository.save(person);
+        return authService.signup(signupDto);
     }
 
+    @PostMapping("smart-id")
+    public String loginWithSmartId(@RequestBody SmartIdDto smartIdDto) {
+        return smartIdService.smartIdLogin(smartIdDto);
+    }
+//    @PostMapping("smart-id-session")
+//    public String startSmartIdSession(@RequestBody DeviceLinkSessionResponse deviceLinkSessionResponse) {
+//       return smartIdService.startSmartIdSession(deviceLinkSessionResponse);
+//    }
 }
