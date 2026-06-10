@@ -43,7 +43,7 @@ function disconnect() {
 
 function sendName() {
     stompClient.publish({
-        destination: "/hello",
+        destination: "/app/hello",
         body: JSON.stringify({'name': $("#name").val()})
     });
 }

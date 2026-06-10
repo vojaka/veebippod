@@ -8,7 +8,6 @@ import ee.kim.veebippod.repository.PersonRepository;
 import ee.kim.veebippod.security.JetService;
 import ee.kim.veebippod.service.AuthService;
 import ee.kim.veebippod.service.SmartIdService;
-import ee.sk.smartid.rest.dao.DeviceLinkSessionResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class AuthController {
     private final SmartIdService smartIdService;
 
     @GetMapping("persons")
-    public List<Person> getallpersons() {
+    public List<Person> getAllPersons() {
         return authService.getAllPersons();
     }
 

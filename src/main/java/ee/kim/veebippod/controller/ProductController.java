@@ -62,7 +62,7 @@ public class ProductController {
 
     @MessageMapping("/products-update") // tellimisel p;;rdume siia
     @SendTo("/get-products") // avalehel subscribe siia toimub
-    public Page<Product> getUpdateProducts(@RequestBody PageDto pageDto) {
+    public Page<Product> getUpdateProducts(PageDto pageDto) {
         return productService.getUpdateProducts(pageDto);
     }
 }
